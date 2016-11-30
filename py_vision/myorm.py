@@ -62,7 +62,8 @@ class Model(dict, metaclass=ModelMetaclass):
         try:
             return self[key]
         except KeyError:
-            raise '%s has no attribute %s!' % (self.__class__.__name__, key)
+            print('ERROR! %s has no attribute %s!' % (self.__class__.__name__, key))
+            return None
 
     def __setattr__(self, key, value):
         self[key] = value
@@ -75,9 +76,11 @@ class Model(dict, metaclass=ModelMetaclass):
         field_names = []
         args = []
         for key, value in self.__mapping__.items():
-            field_names.append(value.name)
-            # getattr 用来从对象中取出name对应的value
-            args.append(getattr(self, key))
+            arg = getattr(self, key)
+            if arg:
+                field_names.append(value.name)
+                # getattr 用来从对象中取出name对应的value
+                args.append(arg)
         sql = 'INSERT INTO %s (%s) values (%s)' % (
             self.__table__,
             ','.join(field_names),
@@ -90,14 +93,6 @@ class User(Model):
     uid = IntegerField('uid')
     name = StringFiled('name', 20)
     email = StringFiled('email', 20)
-
-def simple_test():
-    ' some simple tests '
-    xiaoming = User(uid='123', name='xiaoming', email='xiaoming@qq.com')
-    xiaoming.save()
-
-simple_test()
-
 
 
 
